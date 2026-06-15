@@ -123,10 +123,10 @@ body{font-family:'Noto Sans TC',sans-serif;background:#F5F0E8;color:#3a3228;min-
 // ════════════════════════════════
 // ⚙️ 設定區（只需改這裡）
 // ════════════════════════════════
-const AIRTABLE_TOKEN ='patPVchte5858T5VU.aceb2a7b9e7d9e73d63a02233d7c8642b1e632c48f0f55606c22b8df38e007ce' // 換成你的 API Token
-const BASE_ID        ='appKLJK7eiXFYd8rN'
-const TABLE_BASIC    ='tblyTLVgo3uZR9wWy'  // 個案基本資料表
-const TABLE_INTAKE   ='tblUJioSCHqHnjEPU'  // 初診資料表
+const AIRTABLE_TOKEN = 'patPVchte5858T5VU.aceb2a7b9e7d9e73d63a02233d7c8642b1e632c48f0f55606c22b8df38e007ce' // 換成你的 API Token
+const BASE_ID        = 'appKLJK7eiXFYd8rN'
+const TABLE_BASIC    = 'tblyTLVgo3uZR9wWy'  // 個案基本資料表
+const TABLE_INTAKE   = 'tblUJioSCHqHnjEPU'  // 初診資料表
 </script>
 
 <!-- LOGIN -->
@@ -624,21 +624,21 @@ async function login(){
   btn.textContent='查詢中…';btn.disabled=true;
 
   try{
-    // 查初診資料表（含報告已開放欄位）
-    const intake=await fetchAirtable(TABLE_INTAKE,`{手機}="${phone}"`);
-    if(!intake){showError('查無資料，請確認手機號碼或聯繫營養師');btn.textContent='查看報告 →';btn.disabled=false;return;}
+    const basic=await fetchAirtable(TABLE_BASIC,`{手機}="${phone}"`);
+    if(!basic){
+      showError('查無資料，請確認手機號碼或聯繫營養師');
+      btn.textContent='查看報告 →';btn.disabled=false;return;
+    }
+    const bf=basic.fields;
 
-    const f=intake.fields;
-    if(!f['初診報告開放']){
+    if(!bf['初診報告開放']){
       document.getElementById('loginPage').style.display='none';
       document.getElementById('waitingPage').style.display='flex';
       return;
     }
 
-    // 查個案基本資料（補充姓名、性別等）
-    let basic=null;
-    try{basic=await fetchAirtable(TABLE_BASIC,`{手機}="${phone}"`);}catch(e){}
-    const bf=basic?basic.fields:{};
+    const intake=await fetchAirtable(TABLE_INTAKE,`{手機}="${phone}"`);
+    const f=intake?intake.fields:{};
 
     renderReport(f, bf);
   }catch(e){
@@ -651,10 +651,6 @@ function showError(msg){
   const el=document.getElementById('loginError');
   el.textContent=msg;el.style.display='block';
 }
-
-function renderReport(f, bf){
-  document.getElementById('loginPage').style.display='none';
-  document.getElementById('reportPage').style.display='block';
 
   // 封面
   const name=f['你的名字']||bf['姓名']||'';
