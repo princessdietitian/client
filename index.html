@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>個人化健康計劃 | 公主營養師</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Noto Sans TC',sans-serif;background:#F5F0E8;color:#3a3228;min-height:100vh}
+
+/* ── 設定區 ── */
+/* AIRTABLE_TOKEN / BASE_ID / TABLE IDs 在下方 script 區塊修改 */
+
+/* ── LOGIN ── */
+#loginPage{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:40px 20px;text-align:center}
+.login-logo{font-size:12px;color:#7a6e5f;letter-spacing:3px;margin-bottom:12px}
+.login-title{font-size:22px;font-weight:700;color:#4a5a2a;margin-bottom:8px}
+.login-sub{font-size:14px;color:#7a6e5f;margin-bottom:32px;line-height:1.6}
+.login-input{width:100%;max-width:320px;padding:14px 16px;border:1.5px solid #c8bf9a;border-radius:12px;font-size:16px;font-family:inherit;outline:none;background:white;margin-bottom:12px}
+.login-input:focus{border-color:#4a5a2a}
+.login-btn{width:100%;max-width:320px;padding:14px;background:#4a5a2a;color:white;border:none;border-radius:99px;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit}
+.login-btn:hover{background:#3a4a1a}
+.login-error{font-size:13px;color:#8a3030;margin-top:10px;display:none}
+
+/* ── WAITING ── */
+#waitingPage{display:none;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:40px 20px;text-align:center}
+.waiting-icon{font-size:48px;margin-bottom:16px}
+.waiting-title{font-size:20px;font-weight:700;color:#4a5a2a;margin-bottom:8px}
+.waiting-desc{font-size:14px;color:#7a6e5f;line-height:1.7}
+
+/* ── REPORT ── */
+#reportPage{display:none}
+.report-nav{background:#4a5a2a;padding:12px 20px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:100}
+.report-nav-title{font-size:13px;color:#c8d8a0;letter-spacing:1px}
+.print-btn{background:white;color:#4a5a2a;border:none;padding:8px 20px;border-radius:99px;font-size:13px;font-weight:600;cursor:pointer}
+.back-btn{background:transparent;color:#c8d8a0;border:1px solid rgba(255,255,255,.3);padding:8px 16px;border-radius:99px;font-size:13px;cursor:pointer}
+
+/* ── PAGES ── */
+.report-section{max-width:900px;margin:0 auto;padding:48px 32px;border-bottom:2px dashed #d0c8b0}
+.report-section:last-child{border-bottom:none}
+
+/* COVER */
+.cover{background:linear-gradient(135deg,#4a5a2a 0%,#6a7a3a 100%);min-height:480px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:60px 32px;max-width:100%}
+.cover-brand{font-size:13px;color:#c8d8a0;letter-spacing:3px;margin-bottom:24px}
+.cover-name{font-size:36px;font-weight:700;color:white;margin-bottom:8px}
+.cover-sub{font-size:16px;color:#c8d8a0;margin-bottom:32px}
+.cover-title{font-size:22px;font-weight:500;color:white;margin-bottom:8px}
+.cover-en{font-size:13px;color:rgba(255,255,255,.6);font-style:italic}
+
+/* SECTION HEADERS */
+.sec-header{margin-bottom:32px}
+.sec-title{font-size:28px;font-weight:700;color:#4a5a2a;margin-bottom:4px}
+.sec-en{font-size:14px;color:#7a8a4a;font-style:italic}
+.sec-divider{height:2px;background:linear-gradient(to right,#4a5a2a,transparent);margin-top:12px}
+
+/* 個案背景 */
+.patient-grid{display:grid;grid-template-columns:1fr 1fr;gap:32px;align-items:start}
+.patient-info{display:flex;flex-direction:column;gap:16px}
+.info-row{display:flex;align-items:flex-start;gap:8px}
+.info-dot{color:#c8a84a;font-size:16px;flex-shrink:0;margin-top:2px}
+.info-label{font-size:13px;color:#7a6e5f;font-weight:600;min-width:80px}
+.info-value{font-size:14px;color:#3a3228;line-height:1.6}
+.info-sub{margin-top:6px;padding-left:16px}
+.info-sub-row{display:flex;gap:8px;margin-bottom:4px;font-size:13px;color:#3a3228}
+.info-sub-label{color:#4a5a2a;font-weight:600;min-width:70px}
+
+/* PENTAGON */
+.pentagon-wrap{display:flex;flex-direction:column;align-items:center}
+.pentagon-title{font-size:12px;color:#7a6e5f;margin-bottom:12px;text-align:center}
+.pentagon-labels{font-size:11px;color:#4a5a2a;font-weight:600}
+
+/* PRESSURE BADGE */
+.pressure-badge{display:inline-flex;align-items:center;gap:8px;background:#eef2e0;border:1px solid #b8c890;border-radius:99px;padding:6px 16px;margin-bottom:4px}
+.pressure-num{font-size:18px;font-weight:700;color:#4a5a2a}
+.pressure-level{font-size:13px;color:#6a7a4a}
+
+/* SYMPTOM TAGS */
+.symptom-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.stag{background:#F5F0E8;border:1px solid #c8bf9a;border-radius:99px;padding:3px 10px;font-size:12px;color:#4a5a2a}
+
+/* FIXED CONTENT PAGES */
+.content-card{background:white;border-radius:16px;padding:24px;margin-bottom:16px;border:1px solid #e0d8c0}
+.content-card h3{font-size:16px;font-weight:700;color:#4a5a2a;margin-bottom:12px}
+.content-card p{font-size:14px;color:#5a5040;line-height:1.8}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.highlight-box{background:#4a5a2a;color:white;border-radius:12px;padding:16px;text-align:center}
+.highlight-box h4{font-size:14px;color:#c8d8a0;margin-bottom:6px}
+.highlight-box p{font-size:13px;color:rgba(255,255,255,.8);line-height:1.6}
+.gold-text{color:#c8a84a;font-weight:700}
+.tag-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.ftag{background:#eef2e0;border:1px solid #b8c890;border-radius:8px;padding:4px 12px;font-size:13px;color:#4a5a2a}
+.ftag.symptom{background:#fef3e2;border-color:#e8c870;color:#7a5a10}
+
+/* STAGES */
+.stages-row{display:flex;gap:0;align-items:flex-start;margin-top:24px}
+.stage-item{flex:1;text-align:center;position:relative}
+.stage-item:not(:last-child)::after{content:'→';position:absolute;right:-12px;top:28px;font-size:18px;color:#c8a84a;font-weight:700}
+.stage-num{font-size:11px;color:#7a6e5f;margin-bottom:8px}
+.stage-circle{width:80px;height:80px;border-radius:50%;border:2px solid #c8bf9a;background:white;display:flex;align-items:center;justify-content:center;margin:0 auto 8px;font-size:14px;font-weight:700;color:#4a5a2a;line-height:1.3}
+.stage-desc{font-size:11px;color:#7a6e5f;line-height:1.5}
+
+/* PLAN CARDS */
+.plan-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:20px}
+.plan-card{border:1.5px solid #c8bf9a;border-radius:16px;padding:20px;text-align:center;background:white}
+.plan-name{font-size:16px;font-weight:700;color:#4a5a2a;margin-bottom:4px}
+.plan-en{font-size:11px;color:#7a6e5f;margin-bottom:12px}
+.plan-weeks{font-size:12px;background:#eef2e0;border-radius:99px;padding:3px 12px;display:inline-block;margin-bottom:12px;color:#4a5a2a}
+.plan-price{font-size:22px;font-weight:700;color:#c8a84a;margin-bottom:12px}
+.plan-item{font-size:12px;color:#5a5040;margin-bottom:4px;text-align:left}
+
+/* PRINT */
+@media print{
+  .report-nav,.login-page,.back-btn,.print-btn{display:none!important}
+  .report-section{page-break-after:always;border:none;padding:32px}
+  body{background:white}
+}
+@page{size:A4 landscape;margin:10mm}
+</style>
+</head>
+<body>
+
+<script>
+// ════════════════════════════════
+// ⚙️ 設定區（只需改這裡）
+// ════════════════════════════════
+const AIRTABLE_TOKEN = 'patPVchte5858T5VU' // 換成你的 API Token
+const BASE_ID        = 'appKLJK7eiXFYd8rN'
+const TABLE_BASIC    = 'tblyTLVgo3uZR9wWy'  // 個案基本資料表
+const TABLE_INTAKE   = 'tblUJioSCHqHnjEPU'  // 初診資料表
+</script>
+
+<!-- LOGIN -->
+<div id="loginPage">
+  <p class="login-logo">公主營養師</p>
+  <h1 class="login-title">查看我的健康報告</h1>
+  <p class="login-sub">請輸入填寫問卷時的手機號碼<br>即可查看你的個人化健康計劃</p>
+  <input class="login-input" type="tel" id="phoneInput" placeholder="09xxxxxxxx" maxlength="10">
+  <button class="login-btn" onclick="login()">查看報告 →</button>
+  <p class="login-error" id="loginError"></p>
+</div>
+
+<!-- WAITING -->
+<div id="waitingPage">
+  <div class="waiting-icon">🌿</div>
+  <h2 class="waiting-title">報告準備中</h2>
+  <p class="waiting-desc">你的初診資料已收到！<br>諮詢完成後，營養師會為你開放報告<br><br>如有疑問請透過 LINE 聯繫我們</p>
+</div>
+
+<!-- REPORT -->
+<div id="reportPage">
+  <div class="report-nav">
+    <button class="back-btn" onclick="logout()">← 登出</button>
+    <span class="report-nav-title">個人化健康計劃</span>
+    <button class="print-btn" onclick="window.print()">下載 PDF</button>
+  </div>
+
+  <!-- P1: COVER -->
+  <div class="cover report-section" id="coverSection">
+    <p class="cover-brand">公主營養師｜用知識獲得美麗力量</p>
+    <p class="cover-name" id="coverName">姓名</p>
+    <p class="cover-sub" id="coverSub">年齡 · 性別</p>
+    <p class="cover-title">個人化健康計劃</p>
+    <p class="cover-en">Grounded in science, guided by compassion</p>
+  </div>
+
+  <!-- P2: 全面性覺察 -->
+  <div class="report-section">
+    <div class="sec-header">
+      <div class="sec-title">全面性覺察身體</div>
+      <div class="sec-en">Treat the system, not the symptoms</div>
+      <div class="sec-divider"></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px;text-align:center;margin-top:8px">
+      <div>
+        <p class="gold-text" style="margin-bottom:12px">⊹ 系統 (system)</p>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div class="highlight-box"><h4>神經系統</h4></div>
+          <div class="highlight-box"><h4>消化系統</h4></div>
+          <div class="highlight-box"><h4>生殖系統</h4></div>
+          <div class="highlight-box"><h4>排毒系統</h4></div>
+        </div>
+      </div>
+      <div>
+        <p class="gold-text" style="margin-bottom:12px">⊹ 刺激 (stimulants)</p>
+        <div style="display:flex;flex-direction:column;gap:8px;margin-top:32px">
+          <div class="content-card" style="padding:12px;text-align:center"><b>壓力</b></div>
+          <div class="content-card" style="padding:12px;text-align:center"><b>飲食</b></div>
+          <div class="content-card" style="padding:12px;text-align:center"><b>睡眠</b></div>
+          <div class="content-card" style="padding:12px;text-align:center"><b>情緒</b></div>
+          <div class="content-card" style="padding:12px;text-align:center"><b>工作</b></div>
+        </div>
+      </div>
+      <div>
+        <p class="gold-text" style="margin-bottom:12px">⊹ 表徵 (symptoms)</p>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div class="ftag symptom" style="text-align:center;padding:10px">便秘</div>
+          <div class="ftag symptom" style="text-align:center;padding:10px">憂鬱</div>
+          <div class="ftag symptom" style="text-align:center;padding:10px">脹氣</div>
+          <div class="ftag symptom" style="text-align:center;padding:10px">脂肪肝</div>
+          <div class="ftag symptom" style="text-align:center;padding:10px">週期不穩</div>
+          <div class="ftag symptom" style="text-align:center;padding:10px">體重增加</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- P3: 個案背景 -->
+  <div class="report-section">
+    <div class="sec-header">
+      <div class="sec-title">個案背景</div>
+      <div class="sec-en">Patient background information</div>
+      <div class="sec-divider"></div>
+    </div>
+    <div class="patient-grid">
+      <div class="patient-info">
+        <div class="info-row">
+          <span class="info-dot">✦</span>
+          <div>
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px">
+              <span style="font-size:14px;font-weight:600;color:#3a3228">綜合壓力結果</span>
+              <div class="pressure-badge">
+                <span class="pressure-num" id="pressureScore">--</span>
+                <span class="pressure-level" id="pressureLevel">計算中</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="info-row">
+          <span class="info-dot">✦</span>
+          <div>
+            <div class="info-label" style="font-weight:600;color:#3a3228;margin-bottom:4px">目標/生活困擾</div>
+            <div class="info-value" id="patientGoal">—</div>
+          </div>
+        </div>
+        <div class="info-row">
+          <span class="info-dot">✦</span>
+          <div>
+            <div class="info-label" style="font-weight:600;color:#3a3228;margin-bottom:8px">生理機能</div>
+            <div class="info-sub" id="physiologySection"></div>
+          </div>
+        </div>
+        <div class="info-row">
+          <span class="info-dot">✦</span>
+          <div>
+            <div class="info-label" style="font-weight:600;color:#3a3228;margin-bottom:4px">保健品使用</div>
+            <div class="info-value" id="supplements">—</div>
+          </div>
+        </div>
+      </div>
+      <div class="pentagon-wrap">
+        <p class="pentagon-title">將每一類的題目分數換算成100%化成向量圖</p>
+        <canvas id="pentagonCanvas" width="280" height="280"></canvas>
+        <div style="display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-top:12px" id="pentagonLegend"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- P4: 壓力是問題起源 -->
+  <div class="report-section">
+    <div class="sec-header">
+      <div class="sec-title">壓力是許多問題的起源</div>
+      <div class="sec-en">伴隨著行為，造就了身體的問題</div>
+      <div class="sec-divider"></div>
+    </div>
+    <div class="two-col">
+      <div>
+        <div class="content-card">
+          <h3>生理壓力</h3>
+          <div class="tag-row">
+            <span class="ftag">消化功能下降</span><span class="ftag">雌激素佔優勢</span>
+            <span class="ftag">腸道屏障損傷</span><span class="ftag">睡眠需求提升</span>
+            <span class="ftag">胰島素阻抗</span><span class="ftag">腎上腺疲勞</span>
+          </div>
+        </div>
+        <div class="content-card">
+          <h3>心理壓力</h3>
+          <div class="tag-row">
+            <span class="ftag">工作/同儕壓力</span><span class="ftag">家庭/交際壓力</span>
+            <span class="ftag">情緒性飲食</span><span class="ftag">生活產程轉變</span>
+            <span class="ftag">完美主義</span>
+          </div>
+        </div>
+      </div>
+      <div class="highlight-box" style="display:flex;flex-direction:column;justify-content:center;min-height:200px;gap:16px">
+        <div>
+          <p style="font-size:24px;font-weight:700;color:#c8d8a0;margin-bottom:8px">行為</p>
+          <p style="color:rgba(255,255,255,.7);font-size:13px">情緒性飲食、完美主義<br>慢性壓力行為模式</p>
+        </div>
+        <div style="font-size:20px;color:#c8a84a">↕</div>
+        <div>
+          <p style="font-size:20px;font-weight:700;color:#c8d8a0;margin-bottom:4px">壓力反應 Stress</p>
+          <p style="color:#c8a84a;font-size:14px;font-weight:700">→ 交感神經主導身體</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- P5: 腸道 -->
+  <div class="report-section">
+    <div class="sec-header">
+      <div class="sec-title">消化系統功能下降</div>
+      <div class="sec-en">交感神經主導 → 消化系統功能下降 → 營養不吸收、毒素不排出 → 影響能量使用</div>
+      <div class="sec-divider"></div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:8px">
+      <div class="highlight-box" style="min-height:160px;justify-content:center;display:flex;flex-direction:column">
+        <h4 style="font-size:20px;margin-bottom:12px">胃</h4>
+        <p>食物停在胃時間太長</p>
+        <p class="gold-text" style="margin-top:8px">#脹氣</p>
+      </div>
+      <div class="highlight-box" style="min-height:160px;justify-content:center;display:flex;flex-direction:column">
+        <h4 style="font-size:16px;margin-bottom:12px">小腸・肝膽胰</h4>
+        <p>腸道黏膜過度刺激<br>養分無法正常吸收利用</p>
+        <p class="gold-text" style="margin-top:8px">#肌膚健康</p>
+      </div>
+      <div class="highlight-box" style="min-height:160px;justify-content:center;display:flex;flex-direction:column">
+        <h4 style="font-size:20px;margin-bottom:12px">大腸</h4>
+        <p>腸道菌叢失衡<br>影響飽食感、免疫</p>
+        <p class="gold-text" style="margin-top:8px">#無法控制食慾</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- P6: 血糖 -->
+  <div class="report-section">
+    <div class="sec-header">
+      <div class="sec-title">胰島素阻抗</div>
+      <div class="sec-en" style="font-style:normal">"身體的能量貨幣是血糖，最快轉化成血糖的營養素是碳水"</div>
+      <div class="sec-divider"></div>
+    </div>
+    <div class="two-col" style="margin-top:16px">
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <div class="content-card">
+          <p>短時間攝取大量碳水 → 胰島素大量分泌（身體渴望快能量）</p>
+        </div>
+        <div class="content-card">
+          <p>細胞對胰島素麻痺 → <span class="gold-text">#胰島素阻抗</span></p>
+        </div>
+        <div class="content-card">
+          <p>細胞獲取能量困難 → <span class="gold-text">#高血糖 #持續疲勞</span></p>
+        </div>
+      </div>
+      <div class="content-card" style="display:flex;flex-direction:column;justify-content:center;gap:12px">
+        <p style="font-size:15px;font-weight:700;color:#4a5a2a">慢性發炎循環</p>
+        <p style="font-size:13px;color:#5a5040;line-height:1.8">脂肪不消耗 / 生成更多脂肪<br>免疫系統降低<br>水分滯留<br>毒素累積在脂肪<br><span class="gold-text">#減脂困難</span></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- P7: 慢性發炎 -->
+  <div class="report-section">
+    <div class="sec-header">
+      <div class="sec-title">慢性發炎與荷爾蒙失衡</div>
+      <div class="sec-en">Chronic Inflammation & Hormonal Imbalance</div>
+      <div class="sec-divider"></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px">
+      <div class="content-card">
+        <h3>腎上腺疲勞</h3>
+        <p>皮質醇分泌過多 → 免疫機能減低<br><span class="gold-text">#皮膚屏障薄弱</span><br><span class="gold-text">#睡眠需求量高</span></p>
+      </div>
+      <div class="content-card">
+        <h3>雌激素優勢</h3>
+        <p>影響女性荷爾蒙平衡<br><span class="gold-text">#經期情緒波動</span><br><span class="gold-text">#情緒波動</span></p>
+      </div>
+      <div class="content-card">
+        <h3>菌叢失衡</h3>
+        <p>產生毒素 → 慢性發炎<br>代謝下降<br><span class="gold-text">#經期不穩</span></p>
+      </div>
+    </div>
+    <div class="content-card" style="margin-top:16px;background:#fef9f0;border-color:#e8c870">
+      <h3 style="color:#7a5a10">促發炎食物需注意</h3>
+      <div class="tag-row">
+        <span class="ftag symptom">糖</span><span class="ftag symptom">奶</span>
+        <span class="ftag symptom">麩質</span><span class="ftag symptom">發炎油酸</span>
+        <span class="ftag symptom">塑膠微粒</span><span class="ftag symptom">食品添加劑</span>
+        <span class="ftag symptom">精製糖</span><span class="ftag symptom">大豆沙拉油</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- P8: 四階段 -->
+  <div class="report-section">
+    <div class="sec-header">
+      <div class="sec-title">達到理想健康，有順序、才有效率</div>
+      <div class="sec-divider"></div>
+    </div>
+    <div class="stages-row">
+      <div class="stage-item">
+        <p class="stage-num">第 1 階段</p>
+        <div class="stage-circle">壓力<br>調節</div>
+        <p class="stage-desc">放鬆神經系統<br>穩定情緒賀爾蒙</p>
+      </div>
+      <div class="stage-item">
+        <p class="stage-num">第 2 階段</p>
+        <div class="stage-circle">腸道<br>修復</div>
+        <p class="stage-desc">打造健康腸道<br>確保營養吸收</p>
+      </div>
+      <div class="stage-item">
+        <p class="stage-num">第 3 階段</p>
+        <div class="stage-circle">毒素<br>排除</div>
+        <p class="stage-desc">支持肝臟健康<br>減少發炎反應</p>
+      </div>
+      <div class="stage-item">
+        <p class="stage-num">第 4 階段</p>
+        <div class="stage-circle">啟動<br>代謝</div>
+        <p class="stage-desc">身體變輕盈<br>輕鬆新生活</p>
+      </div>
+    </div>
+    <div class="content-card" style="margin-top:32px;text-align:center;background:#eef2e0;border-color:#b8c890">
+      <p style="font-size:16px;font-weight:700;color:#4a5a2a">不只要改變體態，還要讓你成為自己的健康專家！</p>
+    </div>
+  </div>
+
+  <!-- P9: 方案 -->
+  <div class="report-section">
+    <div class="sec-header">
+      <div class="sec-title">個人化健康計劃方案</div>
+      <div class="sec-divider"></div>
+    </div>
+    <div class="plan-grid">
+      <div class="plan-card">
+        <div class="plan-name">輕盈計畫</div>
+        <div class="plan-en">Lightness</div>
+        <div class="plan-weeks">4 週方案</div>
+        <div class="plan-price">$8,800</div>
+        <div class="plan-item">✔ 基礎營養學</div>
+        <div class="plan-item" style="color:#b0a898">✘ 進階營養學</div>
+        <div class="plan-item" style="color:#b0a898">✘ 高階營養學</div>
+        <div class="plan-item">✔ 1v1 諮詢 × 1</div>
+        <div class="plan-item">✔ LINE 諮詢無限次</div>
+      </div>
+      <div class="plan-card" style="border-color:#c8a84a">
+        <div class="plan-name">悠活計畫</div>
+        <div class="plan-en">Easy & Flow</div>
+        <div class="plan-weeks">8 週方案</div>
+        <div class="plan-price">$16,800</div>
+        <div class="plan-item">✔ 基礎營養學</div>
+        <div class="plan-item">✔ 進階營養學</div>
+        <div class="plan-item" style="color:#b0a898">✘ 高階營養學</div>
+        <div class="plan-item">✔ 1v1 諮詢 × 2</div>
+        <div class="plan-item">✔ LINE 諮詢無限次</div>
+      </div>
+      <div class="plan-card" style="background:#4a5a2a;border-color:#4a5a2a">
+        <div class="plan-name" style="color:white">舒心計畫</div>
+        <div class="plan-en" style="color:#c8d8a0">Harmony</div>
+        <div class="plan-weeks" style="background:rgba(255,255,255,.2);color:#c8d8a0">16 週方案</div>
+        <div class="plan-price" style="color:#c8a84a">$28,800</div>
+        <div class="plan-item" style="color:#c8d8a0">✔ 基礎營養學</div>
+        <div class="plan-item" style="color:#c8d8a0">✔ 進階營養學</div>
+        <div class="plan-item" style="color:#c8d8a0">✔ 高階營養學</div>
+        <div class="plan-item" style="color:#c8d8a0">✔ 1v1 諮詢 × 3</div>
+        <div class="plan-item" style="color:#c8d8a0">✔ LINE 諮詢無限次</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ══ 症狀定義 ══
+const DIMS = {
+  diet: {
+    label:'飲食與體態', max:21,
+    fields:['飲｜體重過重','飲｜體重過輕','飲｜暴食/吃過多**','飲｜渴望甜食*','飲｜渴望零食*','飲｜依賴咖啡因**','飲｜微波食品/加工品**'],
+    labels:['體重過重','體重過輕','暴食/吃過多','渴望甜食','渴望零食','依賴咖啡因','微波食品/加工品']
+  },
+  digest: {
+    label:'消化與代謝', max:24,
+    fields:['消｜脹氣**','消｜胃酸多/胃食道逆流','消｜ 噁心/想吐','消｜便秘**','消｜拉肚子','消｜排氣','消｜水腫**','消｜頻尿/憋尿困難'],
+    labels:['脹氣','胃酸多/逆流','噁心/想吐','便秘','拉肚子','排氣','水腫','頻尿']
+  },
+  sleep: {
+    label:'睡眠與精神', max:27,
+    fields:['睡｜精神亢奮','睡｜疲勞/睡醒還是累**','睡｜需要午睡','睡｜難入眠','睡｜半夜醒來(睡眠中斷)','睡｜打呼/睡眠呼吸中止','睡｜心情低落*','睡｜覺得被工作消耗*','睡｜不耐煩/愛生氣**'],
+    labels:['精神亢奮','疲勞/睡醒還累','需要午睡','難入眠','半夜醒來','打呼/呼吸中止','心情低落','被工作消耗','不耐煩/愛生氣']
+  },
+  skin: {
+    label:'肌膚與免疫', max:27,
+    fields:['肌｜痘痘/粉刺','肌｜皮膚乾燥/紅疹','肌｜落髮','肌｜過敏','肌｜鼻塞','肌｜流鼻水','肌｜喉嚨有痰','肌｜牙齦/喉嚨發炎','肌｜嘴破/潰瘍'],
+    labels:['痘痘/粉刺','皮膚乾燥/紅疹','落髮','過敏','鼻塞','流鼻水','喉嚨有痰','牙齦/喉嚨發炎','嘴破/潰瘍']
+  },
+  female: {
+    label:'女性健康', max:21,
+    fields:['女｜經期不穩定','女｜週期間隔>30天','女｜經前症候群','女｜經期情緒低落','女｜經期不適','女｜經期服用止痛藥','女｜經期血塊大、血液顏色深'],
+    labels:['經期不穩定','週期間隔>30天','經前症候群','經期情緒低落','經期不適','服用止痛藥','血塊大/顏色深']
+  }
+};
+
+// 壓力計算題目
+const PRESSURE_FIELDS = [
+  {fields:['飲｜渴望甜食*','飲｜渴望零食*'], avg:true},
+  {fields:['飲｜暴食/吃過多**']},
+  {fields:['飲｜微波食品/加工品**']},
+  {fields:['飲｜依賴咖啡因**']},
+  {fields:['消｜脹氣**']},
+  {fields:['消｜便秘**']},
+  {fields:['消｜水腫**']},
+  {fields:['睡｜心情低落*','睡｜覺得被工作消耗*'], avg:true},
+  {fields:['睡｜不耐煩/愛生氣**']},
+  {fields:['睡｜疲勞/睡醒還是累**']},
+];
+
+function convertScore(v){return v===4?3:v===3?2:v||0}
+
+function calcDimScore(data, dim){
+  const raw = DIMS[dim].fields.map(f=>convertScore(data[f]||0));
+  return raw.reduce((s,v)=>s+v,0);
+}
+
+function calcPressure(data){
+  let total=0;
+  PRESSURE_FIELDS.forEach(p=>{
+    if(p.avg){
+      const vals=p.fields.map(f=>convertScore(data[f]||0));
+      total+=vals.reduce((s,v)=>s+v,0)/vals.length;
+    } else {
+      total+=convertScore(data[p.fields[0]]||0);
+    }
+  });
+  return Math.round((total/30)*100);
+}
+
+function getTopSymptoms(data, dim, minCount=3){
+  const dim_data = DIMS[dim];
+  const scored = dim_data.fields.map((f,i)=>({label:dim_data.labels[i], score:data[f]||0}));
+  scored.sort((a,b)=>b.score-a.score);
+  const result=[];
+  for(let threshold=4;threshold>=2;threshold--){
+    scored.forEach(s=>{if(s.score===threshold&&!result.find(r=>r.label===s.label))result.push(s)});
+    if(result.length>=minCount)break;
+  }
+  return result.slice(0,5);
+}
+
+function drawPentagon(scores){
+  const canvas=document.getElementById('pentagonCanvas');
+  const ctx=canvas.getContext('2d');
+  const W=280,H=280,cx=140,cy=145,r=100;
+  const dims=['diet','digest','sleep','skin','female'];
+  const labels=['飲食與體態','消化與代謝','睡眠與精神','肌膚與免疫','女性健康'];
+  const angles=dims.map((_,i)=>-Math.PI/2+(2*Math.PI/5)*i);
+
+  ctx.clearRect(0,0,W,H);
+
+  // grid
+  for(let g=1;g<=5;g++){
+    ctx.beginPath();
+    angles.forEach((a,i)=>{
+      const gr=r*(g/5);
+      const x=cx+gr*Math.cos(a),y=cy+gr*Math.sin(a);
+      i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+    });
+    ctx.closePath();
+    ctx.strokeStyle='rgba(74,90,42,0.15)';ctx.lineWidth=1;ctx.stroke();
+  }
+
+  // axes
+  angles.forEach(a=>{
+    ctx.beginPath();ctx.moveTo(cx,cy);
+    ctx.lineTo(cx+r*Math.cos(a),cy+r*Math.sin(a));
+    ctx.strokeStyle='rgba(74,90,42,0.2)';ctx.lineWidth=1;ctx.stroke();
+  });
+
+  // data polygon
+  ctx.beginPath();
+  dims.forEach((d,i)=>{
+    const pct=scores[d]||0;
+    const pr=r*(pct/100);
+    const x=cx+pr*Math.cos(angles[i]);
+    const y=cy+pr*Math.sin(angles[i]);
+    i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+  });
+  ctx.closePath();
+  ctx.fillStyle='rgba(74,90,42,0.15)';ctx.fill();
+  ctx.strokeStyle='#4a5a2a';ctx.lineWidth=2;ctx.stroke();
+
+  // dots
+  dims.forEach((d,i)=>{
+    const pct=scores[d]||0;
+    const pr=r*(pct/100);
+    const x=cx+pr*Math.cos(angles[i]);
+    const y=cy+pr*Math.sin(angles[i]);
+    ctx.beginPath();ctx.arc(x,y,4,0,Math.PI*2);
+    ctx.fillStyle='#4a5a2a';ctx.fill();
+  });
+
+  // labels
+  ctx.font='bold 11px sans-serif';ctx.fillStyle='#c8a84a';ctx.textAlign='center';
+  const labelR=r+24;
+  labels.forEach((l,i)=>{
+    const x=cx+labelR*Math.cos(angles[i]);
+    const y=cy+labelR*Math.sin(angles[i]);
+    ctx.fillText(l,x,y+4);
+  });
+
+  // center score label
+  ctx.font='bold 11px sans-serif';ctx.fillStyle='#4a5a2a';ctx.textAlign='left';
+  ctx.fillText('10',cx+4,cy-r+12);
+
+  // legend
+  const legend=document.getElementById('pentagonLegend');
+  legend.innerHTML='';
+  dims.forEach((d,i)=>{
+    const pct=scores[d]||0;
+    const span=document.createElement('span');
+    span.style.cssText='font-size:11px;color:#4a5a2a;background:#eef2e0;padding:2px 8px;border-radius:99px;border:1px solid #b8c890';
+    span.textContent=`${labels[i]}: ${pct}%`;
+    legend.appendChild(span);
+  });
+}
+
+async function fetchAirtable(tableId, filterFormula){
+  const url=`https://api.airtable.com/v0/${BASE_ID}/${tableId}?filterByFormula=${encodeURIComponent(filterFormula)}&maxRecords=1`;
+  const res=await fetch(url,{headers:{Authorization:`Bearer ${AIRTABLE_TOKEN}`}});
+  if(!res.ok)throw new Error('Airtable error '+res.status);
+  const data=await res.json();
+  return data.records[0]||null;
+}
+
+async function login(){
+  const phone=document.getElementById('phoneInput').value.trim();
+  if(!phone){showError('請輸入手機號碼');return;}
+  const btn=document.querySelector('.login-btn');
+  btn.textContent='查詢中…';btn.disabled=true;
+
+  try{
+    // 查初診資料表（含報告已開放欄位）
+    const intake=await fetchAirtable(TABLE_INTAKE,`{手機}="${phone}"`);
+    if(!intake){showError('查無資料，請確認手機號碼或聯繫營養師');btn.textContent='查看報告 →';btn.disabled=false;return;}
+
+    const f=intake.fields;
+    if(!f['初診報告開放']){
+      document.getElementById('loginPage').style.display='none';
+      document.getElementById('waitingPage').style.display='flex';
+      return;
+    }
+
+    // 查個案基本資料（補充姓名、性別等）
+    let basic=null;
+    try{basic=await fetchAirtable(TABLE_BASIC,`{手機}="${phone}"`);}catch(e){}
+    const bf=basic?basic.fields:{};
+
+    renderReport(f, bf);
+  }catch(e){
+    showError('系統錯誤，請稍後再試');
+    btn.textContent='查看報告 →';btn.disabled=false;
+  }
+}
+
+function showError(msg){
+  const el=document.getElementById('loginError');
+  el.textContent=msg;el.style.display='block';
+}
+
+function renderReport(f, bf){
+  document.getElementById('loginPage').style.display='none';
+  document.getElementById('reportPage').style.display='block';
+
+  // 封面
+  const name=f['你的名字']||bf['姓名']||'';
+  const age=bf['年齡']||'';
+  const gender=bf['性別']||'';
+  document.getElementById('coverName').textContent=`${name}`;
+  document.getElementById('coverSub').textContent=`${age?age+'歲':''}${age&&gender?' · ':''}${gender||''}`;
+
+  // 壓力分數
+  const pScore=calcPressure(f);
+  const pLevel=pScore<=33?'低度':pScore<=66?'中度':'高度';
+  document.getElementById('pressureScore').textContent=`${pScore}/100`;
+  document.getElementById('pressureLevel').textContent=`[${pLevel}]`;
+
+  // 目標
+  document.getElementById('patientGoal').textContent=f['目標精簡版']||bf['動機/計畫/目標']||'—';
+
+  // 保健品
+  document.getElementById('supplements').textContent=f['藥品、保健品、蛋白粉']||'—';
+
+  // 生理機能
+  const physSection=document.getElementById('physiologySection');
+  physSection.innerHTML='';
+  const dimOrder=['sleep','digest','female','skin','diet'];
+  dimOrder.forEach(d=>{
+    const top=getTopSymptoms(f,d);
+    if(top.length===0||top.every(t=>t.score===0))return;
+    const visible=top.filter(t=>t.score>0);
+    if(visible.length===0)return;
+    const row=document.createElement('div');
+    row.className='info-sub-row';
+    row.style.marginBottom='8px';
+    row.innerHTML=`<span class="info-sub-label">⊹ ${DIMS[d].label}：</span><span style="color:#3a3228;font-size:13px">${visible.map(t=>t.label).join('、')}</span>`;
+    physSection.appendChild(row);
+  });
+
+  // 五邊形
+  const scores={};
+  Object.keys(DIMS).forEach(d=>{
+    const raw=calcDimScore(f,d);
+    scores[d]=Math.round((raw/DIMS[d].max)*100);
+  });
+  setTimeout(()=>drawPentagon(scores),100);
+
+  window.scrollTo(0,0);
+}
+
+function logout(){
+  document.getElementById('reportPage').style.display='none';
+  document.getElementById('waitingPage').style.display='none';
+  document.getElementById('loginPage').style.display='flex';
+  document.getElementById('phoneInput').value='';
+  document.getElementById('loginError').style.display='none';
+}
+</script>
+</body>
+</html>
