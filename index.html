@@ -253,25 +253,35 @@ const TABLE_INTAKE   = 'tblUJioSCHqHnjEPU'  // 初診資料表
   <!-- P5: 皮質醇 -->
   <div class="report-section">
     <div class="sec-header">
-      <div class="sec-title">身體處於戒備狀態</div>
-      <div class="sec-en">皮質醇讓三大系統失衡</div>
+      <div class="sec-title">交感神經主導身體</div>
+      <div class="sec-en">長期處於戒備狀態，讓身體失衡</div>
       <div class="sec-divider"></div>
   </div>
-  <img src="system-diagram.png" alt="系統、刺激、症狀" style="width:100%;border-radius:16px;margin-top:-60px;margin-bottom:-60px">
+  <img src="adrena-fatigue.png" alt="腎上腺疲勞會導致胰島素阻抗、腸黏磨損傷、雌激素優勢" style="width:100%;border-radius:16px;margin-top:-60px;margin-bottom:-60px">
   </div>
 
-  <!-- P6: 腸道 -->
+  <!-- P6: 血糖 -->
   <div class="report-section">
     <div class="sec-header">
-      <div class="sec-title">消化系統功能下降</div>
-      <div class="sec-en">交感神經主導 → 消化系統功能下降 → 營養不吸收、毒素不排出 → 影響能量使用</div>
+      <div class="sec-title">胰島素阻抗</div>
+      <div class="sec-en" style="font-style:normal">身體的能量貨幣是血糖，最快轉化成血糖的營養素是碳水</div>
+      <div class="sec-divider"></div>
+    </div>
+  <img src="adrena-fatigue.png" alt="腎上腺疲勞會導致胰島素阻抗、腸黏磨損傷、雌激素優勢" style="width:100%;border-radius:16px;margin-top:-60px;margin-bottom:-60px">
+  </div>
+  
+  <!-- P7: 腸道 -->
+  <div class="report-section">
+    <div class="sec-header">
+      <div class="sec-title">消化功能下降</div>
+      <div class="sec-en">營養不吸收、毒素不排出 → 影響能量使用</div>
       <div class="sec-divider"></div>
     </div>
     <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:8px">
       <div class="highlight-box" style="min-height:160px;justify-content:center;display:flex;flex-direction:column">
         <h4 style="font-size:20px;margin-bottom:12px">胃</h4>
         <p>食物停在胃時間太長</p>
-        <p class="gold-text" style="margin-top:8px">#脹氣</p>
+        <p class="gold-text" style="margin-top:8px">#脹氣、胃酸過多</p>
       </div>
       <div class="highlight-box" style="min-height:160px;justify-content:center;display:flex;flex-direction:column">
         <h4 style="font-size:16px;margin-bottom:12px">小腸・肝膽胰</h4>
@@ -281,33 +291,7 @@ const TABLE_INTAKE   = 'tblUJioSCHqHnjEPU'  // 初診資料表
       <div class="highlight-box" style="min-height:160px;justify-content:center;display:flex;flex-direction:column">
         <h4 style="font-size:20px;margin-bottom:12px">大腸</h4>
         <p>腸道菌叢失衡<br>影響飽食感、免疫</p>
-        <p class="gold-text" style="margin-top:8px">#無法控制食慾</p>
-      </div>
-    </div>
-  </div>
-
-  <!-- P7: 血糖 -->
-  <div class="report-section">
-    <div class="sec-header">
-      <div class="sec-title">胰島素阻抗</div>
-      <div class="sec-en" style="font-style:normal">"身體的能量貨幣是血糖，最快轉化成血糖的營養素是碳水"</div>
-      <div class="sec-divider"></div>
-    </div>
-    <div class="two-col" style="margin-top:16px">
-      <div style="display:flex;flex-direction:column;gap:12px">
-        <div class="content-card">
-          <p>短時間攝取大量碳水 → 胰島素大量分泌（身體渴望快能量）</p>
-        </div>
-        <div class="content-card">
-          <p>細胞對胰島素麻痺 → <span class="gold-text">#胰島素阻抗</span></p>
-        </div>
-        <div class="content-card">
-          <p>細胞獲取能量困難 → <span class="gold-text">#高血糖 #持續疲勞</span></p>
-        </div>
-      </div>
-      <div class="content-card" style="display:flex;flex-direction:column;justify-content:center;gap:12px">
-        <p style="font-size:15px;font-weight:700;color:#4a5a2a">慢性發炎循環</p>
-        <p style="font-size:13px;color:#5a5040;line-height:1.8">脂肪不消耗 / 生成更多脂肪<br>免疫系統降低<br>水分滯留<br>毒素累積在脂肪<br><span class="gold-text">#減脂困難</span></p>
+        <p class="gold-text" style="margin-top:8px">#無法控制食慾 #容易過敏</p>
       </div>
     </div>
   </div>
@@ -316,7 +300,7 @@ const TABLE_INTAKE   = 'tblUJioSCHqHnjEPU'  // 初診資料表
   <div class="report-section">
     <div class="sec-header">
       <div class="sec-title">慢性發炎與荷爾蒙失衡</div>
-      <div class="sec-en">Chronic Inflammation & Hormonal Imbalance</div>
+      <div class="sec-en">讓肝臟過度負擔</div>
       <div class="sec-divider"></div>
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px">
