@@ -66,7 +66,7 @@ body{font-family:'Noto Sans TC',sans-serif;background:#F5F0E8;color:#3a3228;min-
 /* PENTAGON */
 .pentagon-wrap{display:flex;flex-direction:column;align-items:center}
 .pentagon-title{font-size:12px;color:#7a6e5f;margin-bottom:12px;text-align:center}
-.pentagon-labels{font-size:11px;color:#4a5a2a;font-weight:600}
+.pentagon-labels{font-size:22px;color:#4a5a2a;font-weight:600}
 
 /* PRESSURE BADGE */
 .pressure-badge{display:inline-flex;align-items:center;gap:8px;background:#eef2e0;border:1px solid #b8c890;border-radius:99px;padding:6px 16px;margin-bottom:4px}
@@ -215,8 +215,7 @@ const TABLE_INTAKE   = 'tblUJioSCHqHnjEPU'  // 初診資料表
         </div>
       </div>
       <div class="pentagon-wrap">
-        <p class="pentagon-title">將每一類的題目分數換算成100%化成向量圖</p>
-        <canvas id="pentagonCanvas" width="280" height="280"></canvas>
+        <canvas id="pentagonCanvas" width="560" height="560" style="width:100%;max-width:400px"></canvas>
         <div style="display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-top:12px" id="pentagonLegend"></div>
       </div>
     </div>
@@ -467,10 +466,11 @@ const PRESSURE_FIELDS = [
   {fields:['睡｜疲勞/睡醒還是累**']},
 ];
 
-function convertScore(v){return v===4?3:v===3?2:v||0}
+function convertScoreStress(v){ return v===4?3:v===3?2:v||0 }
+function convertScoreHealth(v){ return v===0?3:v===1?2:v===2?2:v===3?1:0 }
 
 function calcDimScore(data, dim){
-  const raw = DIMS[dim].fields.map(f=>convertScore(data[f]||0));
+  const raw = DIMS[dim].fields.map(f=>convertScoreHealth(data[f]||0));
   return raw.reduce((s,v)=>s+v,0);
 }
 
@@ -478,10 +478,10 @@ function calcPressure(data){
   let total=0;
   PRESSURE_FIELDS.forEach(p=>{
     if(p.avg){
-      const vals=p.fields.map(f=>convertScore(data[f]||0));
+      const vals=p.fields.map(f=>convertScoreStress(data[f]||0));
       total+=vals.reduce((s,v)=>s+v,0)/vals.length;
     } else {
-      total+=convertScore(data[p.fields[0]]||0);
+      total+=convertScoreStress(data[p.fields[0]]||0);
     }
   });
   return Math.round((total/30)*100);
@@ -502,9 +502,9 @@ function getTopSymptoms(data, dim, minCount=3){
 function drawPentagon(scores){
   const canvas=document.getElementById('pentagonCanvas');
   const ctx=canvas.getContext('2d');
-  const W=280,H=280,cx=140,cy=145,r=100;
+  const W=560,H=560,cx=280,cy=290,r=200;
   const dims=['diet','digest','sleep','skin','female'];
-  const labels=['飲食與體態','消化與代謝','睡眠與精神','肌膚與免疫','女性健康'];
+  const labels=[['飲食','體態'],['消化','代謝'],['睡眠','精神'],['肌膚','免疫'],['女性','健康']];
   const angles=dims.map((_,i)=>-Math.PI/2+(2*Math.PI/5)*i);
 
   ctx.clearRect(0,0,W,H);
@@ -555,9 +555,10 @@ function drawPentagon(scores){
   ctx.font='bold 11px sans-serif';ctx.fillStyle='#c8a84a';ctx.textAlign='center';
   const labelR=r+24;
   labels.forEach((l,i)=>{
-    const x=cx+labelR*Math.cos(angles[i]);
-    const y=cy+labelR*Math.sin(angles[i]);
-    ctx.fillText(l,x,y+4);
+  const x=cx+labelR*Math.cos(angles[i]);
+  const y=cy+labelR*Math.sin(angles[i]);
+  ctx.fillText(l[0],x,y-4);
+  ctx.fillText(l[1],x,y+14);
   });
 
   // center score label
@@ -637,10 +638,10 @@ function renderReport(f, bf){
   document.getElementById('pressureLevel').textContent=`[${pLevel}]`;
 
   // 目標
-  document.getElementById('patientGoal').textContent=f['目標精簡版']||bf['動機/計畫/目標']||'—';
+  document.getElementById('patientGoal').textContent = f['【目標/生活困擾】'] || '—';
 
   // 保健品
-  document.getElementById('supplements').textContent=f['藥品、保健品、蛋白粉']||'—';
+  document.getElementById('supplements').textContent=f['【飲食與保健品】']||'—';
 
   // 生理機能
   const physSection=document.getElementById('physiologySection');
