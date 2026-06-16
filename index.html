@@ -652,6 +652,10 @@ function showError(msg){
   el.textContent=msg;el.style.display='block';
 }
 
+function renderReport(f, bf){
+  document.getElementById('loginPage').style.display='none';
+  document.getElementById('reportPage').style.display='block';
+
   // 封面
   const name=f['你的名字']||bf['姓名']||'';
   const age=bf['年齡']||'';
