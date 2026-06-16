@@ -41,11 +41,10 @@ body{font-family:'Noto Sans TC',sans-serif;background:#F5F0E8;color:#3a3228;min-
 
 /* COVER */
 .cover{background:linear-gradient(135deg,#4a5a2a 0%,#6a7a3a 100%);min-height:480px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:60px 32px;max-width:100%}
-.cover-brand{font-size:13px;color:#c8d8a0;letter-spacing:3px;margin-bottom:24px}
-.cover-name{font-size:36px;font-weight:700;color:white;margin-bottom:8px}
-.cover-sub{font-size:16px;color:#c8d8a0;margin-bottom:32px}
-.cover-title{font-size:22px;font-weight:500;color:white;margin-bottom:8px}
-.cover-en{font-size:13px;color:rgba(255,255,255,.6);font-style:italic}
+.cover-title{font-size:36px;font-weight:700;color:white;margin-bottom:8px}
+.cover-en{font-size:16px;color:rgba(255,255,255,.6);font-style:italic}
+.cover-name{font-size:22px;font-weight:500;color:white;margin-bottom:8px}
+.cover-sub{font-size:13px;color:#c8d8a0;margin-bottom:32px}
 
 /* SECTION HEADERS */
 .sec-header{margin-bottom:32px}
@@ -150,17 +149,16 @@ const TABLE_INTAKE   = 'tblUJioSCHqHnjEPU'  // 初診資料表
 <div id="reportPage">
   <div class="report-nav">
     <button class="back-btn" onclick="logout()">← 登出</button>
-    <span class="report-nav-title">個人化健康計劃</span>
+    <span class="report-nav-title">公主營養師｜用知識獲得美麗力量</span>
     <button class="print-btn" onclick="window.print()">下載 PDF</button>
   </div>
 
   <!-- P1: COVER -->
   <div class="cover report-section" id="coverSection">
-    <p class="cover-brand">公主營養師｜用知識獲得美麗力量</p>
-    <p class="cover-name" id="coverName">姓名</p>
-    <p class="cover-sub" id="coverSub">年齡 · 性別</p>
     <p class="cover-title">個人化健康計劃</p>
     <p class="cover-en">Grounded in science, guided by compassion</p>
+    <p class="cover-name" id="coverName">姓名</p>
+    <p class="cover-sub" id="coverSub">年齡 ✦ 性別</p>
   </div>
 
   <!-- P2: 全面性覺察 -->
