@@ -216,7 +216,6 @@ const TABLE_INTAKE   = 'tblUJioSCHqHnjEPU'  // 初診資料表
       </div>
       <div class="pentagon-wrap">
         <canvas id="pentagonCanvas" width="560" height="560" style="width:100%;max-width:400px"></canvas>
-        <div style="display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-top:12px" id="pentagonLegend"></div>
       </div>
     </div>
   </div>
@@ -552,28 +551,13 @@ function drawPentagon(scores){
   });
 
   // labels
-  ctx.font='bold 11px sans-serif';ctx.fillStyle='#c8a84a';ctx.textAlign='center';
+  ctx.font='bold 22px sans-serif';ctx.fillStyle='#c8a84a';ctx.textAlign='center';
   const labelR=r+24;
   labels.forEach((l,i)=>{
   const x=cx+labelR*Math.cos(angles[i]);
   const y=cy+labelR*Math.sin(angles[i]);
   ctx.fillText(l[0],x,y-4);
   ctx.fillText(l[1],x,y+14);
-  });
-
-  // center score label
-  ctx.font='bold 11px sans-serif';ctx.fillStyle='#4a5a2a';ctx.textAlign='left';
-  ctx.fillText('10',cx+4,cy-r+12);
-
-  // legend
-  const legend=document.getElementById('pentagonLegend');
-  legend.innerHTML='';
-  dims.forEach((d,i)=>{
-    const pct=scores[d]||0;
-    const span=document.createElement('span');
-    span.style.cssText='font-size:11px;color:#4a5a2a;background:#eef2e0;padding:2px 8px;border-radius:99px;border:1px solid #b8c890';
-    span.textContent=`${labels[i]}: ${pct}%`;
-    legend.appendChild(span);
   });
 }
 
