@@ -524,7 +524,7 @@ async function login(){
     const text = await res.text();
     console.log('Make回傳:', text);
     const data = JSON.parse(text);
-    const f = data.fields || {};
+    const f = data || {};
 
     if(!data || Object.keys(f).length === 0){
       showError('查無資料，請確認手機號碼或聯繫營養師');
