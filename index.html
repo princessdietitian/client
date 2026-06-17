@@ -122,10 +122,7 @@ body{font-family:'Noto Sans TC',sans-serif;background:#F5F0E8;color:#3a3228;min-
 // ════════════════════════════════
 // ⚙️ 設定區（只需改這裡）
 // ════════════════════════════════
-const AIRTABLE_TOKEN = 'path5RuI3I6jMMqnO.942849dd060221e03f5116c1be90fd1acc0c02cf717be121838890516232dd1f' // 換成你的 API Token
-const BASE_ID        = 'appKLJK7eiXFYd8rN'
-const TABLE_BASIC    = 'tblUJioSCHqHnjEPU'  // 個案基本資料表
-const TABLE_INTAKE   = 'tblUJioSCHqHnjEPU'  // 初診資料表
+const ENDPOINT_CLIENT = 'https://hook.eu1.make.com/sarp3tvd164xme1tow88btu2wjjm2a8t'
 </script>
 
 <!-- LOGIN -->
@@ -509,11 +506,14 @@ function drawPentagon(scores){
 }
 
 async function fetchAirtable(tableId, filterFormula){
-  const url=`https://api.airtable.com/v0/${BASE_ID}/${tableId}?filterByFormula=${encodeURIComponent(filterFormula)}&maxRecords=1`;
-  const res=await fetch(url,{headers:{Authorization:`Bearer ${AIRTABLE_TOKEN}`}});
-  if(!res.ok)throw new Error('Airtable error '+res.status);
-  const data=await res.json();
-  return data.records[0]||null;
+  const res = await fetch(ENDPOINT_CLIENT, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ phone: document.getElementById('phoneInput').value.trim() })
+  });
+  if(!res.ok) throw new Error('error '+res.status);
+  const data = await res.json();
+  return data;
 }
 
 async function login(){
