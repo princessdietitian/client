@@ -505,17 +505,6 @@ function drawPentagon(scores){
   });
 }
 
-async function fetchAirtable(tableId, filterFormula){
-  const res = await fetch(ENDPOINT_CLIENT, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ phone: document.getElementById('phoneInput').value.trim() })
-  });
-  if(!res.ok) throw new Error('error '+res.status);
-  const data = await res.json();
-  return data;
-}
-
 async function login(){
   const phone=document.getElementById('phoneInput').value.trim();
   if(!phone){showError('請輸入手機號碼');return;}
@@ -523,24 +512,30 @@ async function login(){
   btn.textContent='查詢中…';btn.disabled=true;
 
   try{
-    const basic=await fetchAirtable(TABLE_BASIC,`{手機}="${phone}"`);
-    if(!basic){
+    const res = await fetch(ENDPOINT_CLIENT, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ phone })
+    });
+    if(!res.ok) throw new Error('error '+res.status);
+    const data = await res.json();
+    const f = data.fields || {};
+
+    if(!data || Object.keys(f).length === 0){
       showError('查無資料，請確認手機號碼或聯繫營養師');
       btn.textContent='查看報告 →';btn.disabled=false;return;
     }
-    const bf=basic.fields;
 
-    if(!bf['初診報告開放']){
+    if(!f['初診報告開放']){
       document.getElementById('loginPage').style.display='none';
       document.getElementById('waitingPage').style.display='flex';
+      btn.textContent='查看報告 →';btn.disabled=false;
       return;
     }
 
-    const intake=await fetchAirtable(TABLE_INTAKE,`{手機}="${phone}"`);
-    const f=intake?intake.fields:{};
-
-    renderReport(f, bf);
+    renderReport(f, f);
   }catch(e){
+    console.log('錯誤:', e);
     showError('系統錯誤，請稍後再試');
     btn.textContent='查看報告 →';btn.disabled=false;
   }
