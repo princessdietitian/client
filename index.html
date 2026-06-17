@@ -514,7 +514,10 @@ async function login(){
   try{
     const res = await fetch(ENDPOINT_CLIENT, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 
+      'Content-Type': 'application/json',
+      'x-make-apikey': 'princess-initial'
+        },
       body: JSON.stringify({ phone })
     });
     if(!res.ok) throw new Error('error '+res.status);
